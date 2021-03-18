@@ -1,17 +1,29 @@
+import math
 class Shape:
 	
 	default_mass=1
 	default_thita=0
 	default_speedx=0
 	default_speedy=0
-	default_speedThita=0
 	
 	class equation:
 		def init(self,coefficients,value):
 			self.coefficients=coefficients
 			self.value=value
 	
-	def init(self,points=[[0,0],[0,1],[1,0]],masses=[default_mass,default_mass,default_mass],Thita=[default_thita],velocity=[default_speedx,default_speedy],Thita_diff=[default_speedThita],connections=[[1,2],[2,0],[0,1]]):
+	def dist(point0,point1):#calculate distance between points
+		dist=0;
+		square=lambda x:x*x
+		for i in range(point0):
+			dist+=square(point0[i]-point1[i])
+		return math.sqrt(dist)
+	
+	def set_collision_radius(self):#calculate collision radius
+		self.collision_radius=0
+		for i in self.hit_points:
+			self.collision_radius=max(self.collision_radius,dist(i,COM))
+	
+	def init(self,points=[[0,0],[0,1],[1,0]],masses=[default_mass,default_mass,default_mass],Thita=[default_thita],velocity=[default_speedx,default_speedy],connections=[[1,2],[2,0],[0,1]]):
 		dimension_error=0
 		if(not type(points)==list):
 			dimension_error=1
@@ -108,6 +120,7 @@ class Shape:
 				self.net_mass+=masses[i]#Adds mass of each point
 			for i in range(len(COM)):
 				self.COM[i]/=self.net_mass#Weighted average of coordinates
+			set_collision_radius()#Collision radius is the minimum distance a point must be in order to collide with the body
 			self.velocity=velocity
 			self.connections=connections
 	
@@ -172,6 +185,18 @@ class Shape:
 					a0-=coefficients[i]*equations[0].coefficients[i]
 				a0/=equations[0].coefficients[0]
 				return a0+coefficients
+		
+		def find_normal(base_points,peak_point):
+			value=30
+			coeffecients_of_plane=find_coefficient([equation(i,value) for i in base_points])
+			num=0
+			dem=0
+			for i in range(coefficients_of_plane):
+				num+=base_paints[i]*coefficients_of_plane[i]
+				den+=coefficients_of_plane[i]*coefficients_of_plane[i]
+			num-=value
+			den=math.sqrt(den)
+			return num/den
 		
 		self.hit_points=remove_repeats(self.hit_points)
 		self.hit_points=remove_collinear(self.hit_points)
