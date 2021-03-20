@@ -1,11 +1,4 @@
 import math
-
-def dist(A,B):
-	mag=0
-	for i in range(len(A)):
-		mag+=(A[i]-B[i])*(A[i]-B[i])
-	return math.sqrt(mag)
-
 class Shape:
 	
 	default_mass=1
@@ -189,7 +182,7 @@ class Shape:
 				a0/=equations[0].coefficients[0]
 				return a0+coefficients
 		
-		def find_normal(base_points,peak_point):
+		def find_normal(base_points,peak_point):#Given a base in and n-dimensional space, calculate normal, by ax1+by1+cz1=........+d/sqrt(a*a+b*b+c*c+.....)
 			value=30
 			coeffecients_of_plane=find_coefficient([equation(i,value) for i in base_points])
 			num=0
@@ -201,7 +194,7 @@ class Shape:
 			den=math.sqrt(den)
 			return num/den
 		
-		def remove_hit_point(current_point,hit_points,connections):
+		def remove_hit_point(current_point,hit_points,connections):#Function to remove hitpoint from object
 			hit_points.pop(current_point)
 			for i in connections[current_point]:
 				connections[i].remove(current_point)
@@ -214,7 +207,7 @@ class Shape:
 				new_connections.append(lst)
 			return (hit_points,new_connections)
 		
-		def is_looped(connections,reached_points,to_be_reached):
+		def is_looped(connections,reached_points,to_be_reached):#Checks if all the given points are directly connected to at least one of the same set, to form a base
 			for i in reached_points:
 				for j in to_be_reached:
 					if j in connections[i]:
@@ -226,10 +219,12 @@ class Shape:
 						break
 			return len(to_be_reached)==0
 		
-		def has_close_base(current_point,hit_points,connections,collision_radius,hitbox_accuracy):
+		def has_close_base(current_point,hit_points,connections,collision_radius,hitbox_accuracy):#Checks if a base is close to a given point
 			current_connections=connections[current_point]
+			
 			if(not is_looped(connections,current_connections[0],current_connections[1:])):
 				return False
+			
 			if len(current_connections)>len(hit_points[0]):
 				base_lst=[hit_points[i] for i in current_connections[:len(hit_points[0])]]
 				max_deviation_from_base=0
@@ -247,6 +242,7 @@ class Shape:
 				normal=find_normal([hit_points[i] for i in current_connections],points[current_point])
 			if(normal/collision_radius>1-hitbox_accuracy/100):
 				return False
+			
 			centre=[0 for i in len(hit_points[0])]
 			max_dist_of_base_from_centre=0
 			for i in current_connections:
@@ -256,14 +252,14 @@ class Shape:
 				centre[i]/=len(current_connections)
 			for i in current_connections:
 				current_dist=dist(hit_points[i],centre)
-				if(current_dist>max_dist_of_base_from_centre):
+				if(current_dist>max(max_dist_of_base_from_centre,normal)):
 					max_dist_of_base_from_centre=current_dist
-			if(dist(hit_points[current_point],centre)>max_dist_of_base_from_centre):
+			if(dist(hit_points[current_point],centre)>max(max_dist_of_base_from_centre,normal)):
 				return False
 			return True
 		
 		self.hit_points=remove_repeats(self.hit_points)
 		self.hit_points=remove_collinear(self.hit_points)
 		for i in range(len(hit_points)):
-			if has_close_base(i,self.hit_points,self.connections,self.collision_radius,self.hit_box_accuracy)
+			if has_close_base(i,self.hit_points,self.connections,self.collision_radius,self.hit_box_accuracy)#Approximates a small hill as flat plane
 				self.hit_points,self.connections=remove_hit_point(i,self.hit_points,self.connections)
