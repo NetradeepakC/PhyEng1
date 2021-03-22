@@ -14,21 +14,3 @@ class point_object:
 		self.velocity=velocity
 		self.mass=mass
 		self.charge=charge
-	
-	def change_state(self,force=[0,0,0],time_step=1/60,values={}):
-		
-		acceleration=[]
-		if(type(force[0])==int):
-			for i in force:
-				acceleration.append(i/self.mass)
-		else:
-			values["body_mass"]=self.mass
-			values["body_charge"]=self.charge
-			for i in range(len(self.position)):
-				values["coordinate"+str(i)]=self.position[i]
-				values["axial_velocity"+str(i)]=self.velocity[i]
-			for i in force:
-				acceleration.append(i.evaluate_equation(values)/self.mass)
-		for i in range(len(acceleration)):
-			self.velocity[i]+=acceleration[i]*time_step
-			self.position[i]+=self.velocity[i]*time_step
