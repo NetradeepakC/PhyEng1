@@ -15,7 +15,7 @@ class point_object:
 		self.mass=mass
 		self.charge=charge
 	
-	def change_state(self,force=[0,0,0],time_step,values={}):
+	def change_state(self,force=[0,0,0],time_step=1/60,values={}):
 		
 		acceleration=[]
 		if(type(force[0])==int):
