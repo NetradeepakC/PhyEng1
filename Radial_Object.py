@@ -1,5 +1,4 @@
 # Radial_Object class is a shape that represents a Circle in the 2D coordinate system.
-
 class Radial_Object:
 	
 	default_mass=1
