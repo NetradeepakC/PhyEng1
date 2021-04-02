@@ -1,23 +1,24 @@
 import math
-import math2
+
+
 class Shape:
 	
-	default_mass=1
-	default_thita=0
-	default_speedx=0
-	default_speedy=0
+	default_mass = 1
+	default_thita = 0
+	default_speedx = 0
+	default_speedy = 0
 	
-	def dist(point0,point1):#calculate distance between points
-		dist=0;
+	def dist(point0,point1):  # calculate distance between points
+		dist = 0
 		square=lambda x:x*x
 		for i in range(point0):
-			dist+=square(point0[i]-point1[i])
+			dist += square(point0[i]-point1[i])
 		return math.sqrt(dist)
 	
-	def set_collision_radius(self):#calculate collision radius
-		self.collision_radius=0
+	def set_collision_radius(self):  # calculate collision radius
+		self.collision_radius = 0
 		for i in self.hit_points:
-			self.collision_radius=max(self.collision_radius,dist(i,COM))
+			self.collision_radius = max(self.collision_radius, dist(i, COM))
 	
 	def init(self,points=[[0,0],[0,1],[1,0]],masses=[default_mass,default_mass,default_mass],Thita=[default_thita],velocity=[default_speedx,default_speedy],connections=[[1,2],[2,0],[0,1]],hitbox_accuracy=100):
 		dimension_error=0
