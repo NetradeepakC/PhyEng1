@@ -14,6 +14,16 @@ The above mentioned equations are solved to get a1,a2,......an
 """
 import custom_math as m2
 
+class Boundry:
+	def __init__(self, points, dimension):
+		coefficients = []
+		values = []
+		self.points = points
+		for i in range(dimension):
+			coefficients.append([points[i][j] for j in range(dimension)])
+			values.append(30)
+		self.coefficients = m2.solve_equations([m2.equation(coefficients[i], values[i]) for i in range(dimension)])
+		self.value = 30
 
 class Surface:
 	def __init__(self, points, dimension):
@@ -25,3 +35,34 @@ class Surface:
 			values.append(30)
 		self.coefficients = m2.solve_equations([m2.equation(coefficients[i], values[i]) for i in range(dimension)])
 		self.value = 30
+		
+		boundry_points=[i[:-1] for i in points]
+		boundry_list_perspective1=[]
+		for i in range(len(boundry_points)):
+			boundry_list_perspective1.append(Boundry(boundry_points[:i]+boundry_points[i+1:],dimension-1))
+		
+		boundry_points=[i[1:] for i in points]
+		boundry_list_perspective2=[]
+		for i in range(len(boundry_points)):
+			boundry_list_perspective2.append(Boundry(boundry_points[:i]+boundry_points[i+1:],dimension-1))
+		
+		centre=[0 for i in points[0]]
+		for i in points:
+			for j in range(len(i)):
+				centre[j]+=i[j]
+		for i in range(len(points[0])):
+			centre[i]/=len(points)
+		
+		self.Centre_Parity=[];
+		self.use_perspective2=True
+		for i in boundry_list_perspective1:
+			self.Centre_Parity.append(m2.value_at(centre,i));
+			if(not self.Centre_Parity[-1]==0):
+				self.use_perspective2=False
+		if(self.use_perspective2):
+			Centre_Parity=[]
+			for i in boundry_list_perspective2:
+				self.Centre_Parity.append(m2.value_at(centre,i))
+			self.boundry_list=boundry_list_perspective2
+		else:
+			self.boundry_list=boundry_list_perspective1

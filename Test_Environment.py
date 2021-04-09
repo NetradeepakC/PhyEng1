@@ -25,22 +25,28 @@ height = infoObject.current_w/2
 running = True
 Radial_Object_List = []
 Surface_List = []
-Physics_Model_List = [phy.newtonian_physics_model(Gravitational_Constant=1000)]
+Physics_Model_List = [phy.newtonian_physics_model()]
 Gravity_List = [Physics_Model_List[i].Get_Gravity() for i in range(len(Physics_Model_List))]
-Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [10, 0], 1, 0, 5, False, [255, 0, 0]))
-Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [0, 10], 1, 0, 5, False, [0, 255, 0]))
-Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [-10, 0], 1, 0, 5, False, [0, 0, 255]))
-Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [0, -10], 1, 0, 5, False, [0, 255, 255]))
-Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [10, 0], 1, 0, 5, False, [255, 0, 255]))
-Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [0, 10], 1, 0, 5, False, [255, 255, 0]))
-Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [0, -10], 1, 0, 5, False, [255, 255, 255]))
-Surface_List.append(SU.Surface([[0, 0], [width, 0]], 2))
-Surface_List.append(SU.Surface([[width, 0], [width, height]], 2))
-Surface_List.append(SU.Surface([[width, height], [0, height]], 2))
-Surface_List.append(SU.Surface([[0, 0], [0, height]], 2))
+Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [100, 0], 2*22474266964325.848, 0, 5, False, [255, 0, 0]))
+Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [0, 100], 2*22474266964325.848, 0, 5, False, [0, 255, 0]))
+Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [-100, 0], 2*22474266964325.848, 0, 5, False, [0, 0, 255]))
+Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [0, -100], 2*22474266964325.848, 0, 5, False, [0, 255, 255]))
+Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [100, 0], 2*22474266964325.848, 0, 5, False, [255, 0, 255]))
+Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [0, 100], 2*22474266964325.848, 0, 5, False, [255, 255, 0]))
+Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [0, -100], 2*22474266964325.848, 0, 5, False, [255, 255, 255]))
+Surface_List.append(SU.Surface([[0, 0], [width-1, 0]], 2))
+Surface_List.append(SU.Surface([[width/2-400, height/2], [width/2+400, height/2]], 2))
+Surface_List.append(SU.Surface([[width/2, height/2-200], [width/2, height/2+200]], 2))
+print(Surface_List[-1].use_perspective2)
+Surface_List.append(SU.Surface([[width-1, 0], [width-1, height-1]], 2))
+Surface_List.append(SU.Surface([[width-1, height-1], [0, height-1]], 2))
+Surface_List.append(SU.Surface([[0, 0], [0, height-1]], 2))
+prev_time=0
 
 while running:
-	clock.tick(60)
+	time_step=pygame.time.get_ticks()/1000-prev_time
+	prev_time=pygame.time.get_ticks()/1000
+	print(1/time_step)
 	
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
@@ -72,10 +78,12 @@ while running:
 				temp = [Gravity_List[0][i](values) for i in range(len(Gravity_List[0]))]
 				force = [force[i]+temp[i] for i in range(len(temp))]
 				
-		Physics_Model_List[0].Update_Kinematics(i, force=force)
+		Physics_Model_List[0].Update_Kinematics(i, force=force, time_step=time_step)
 	
 	for i in Radial_Object_List:
 		pygame.draw.circle(screen, i.color, i.position, i.radius)
+	for i in Surface_List:
+		pygame.draw.line(screen,(255,255,255),i.points[0],i.points[1],1)
 	
 	Physics_Model_List[0].Surface_Collision(Radial_Object_List, Surface_List)
 	

@@ -30,18 +30,28 @@ class equation:
 
 def solve_equations(equations):
 	if equations[0].coefficients[0] == 0:
-		equations[0].coefficients[0] = 1
-	if len(equations) == 1:
-		return [equations[0].value/equations[0].coefficients[0]]
+		if len(equations) == 1:
+			return [equations[0].value]
+		else:
+			coefficients = [[equations[i].coefficients[j]-equations[0].coefficients[j]*equations[i].coefficients[0] for j in range(1, len(equations[0].coefficients))] for i in range(1, len(equations))]
+			value = [equations[i].value-equations[0].value*equations[i].coefficients[0] for i in range(1, len(equations))]
+			variables = solve_equations([equation(coefficients[i], value[i]) for i in range(len(equations)-1)])
+			a0 = equations[0].value
+			for i in range(1, len(equations[0].coefficients)):
+				a0 -= variables[i-1]*equations[0].coefficients[i]
+			return [a0]+variables
 	else:
-		coefficients = [[equations[i].coefficients[j]-equations[0].coefficients[j]*equations[i].coefficients[0]/equations[0].coefficients[0] for j in range(1, len(equations[0].coefficients))] for i in range(1, len(equations))]
-		value = [equations[i].value-equations[0].value*equations[i].coefficients[0]/equations[0].coefficients[0] for i in range(1, len(equations))]
-		variables = solve_equations([equation(coefficients[i], value[i]) for i in range(len(equations)-1)])
-		a0 = equations[0].value
-		for i in range(1, len(equations[0].coefficients)):
-			a0 -= variables[i-1]*equations[0].coefficients[i]
-		a0 /= equations[0].coefficients[0]
-		return [a0]+variables
+		if len(equations) == 1:
+			return [equations[0].value/equations[0].coefficients[0]]
+		else:
+			coefficients = [[equations[i].coefficients[j]-equations[0].coefficients[j]*equations[i].coefficients[0]/equations[0].coefficients[0] for j in range(1, len(equations[0].coefficients))] for i in range(1, len(equations))]
+			value = [equations[i].value-equations[0].value*equations[i].coefficients[0]/equations[0].coefficients[0] for i in range(1, len(equations))]
+			variables = solve_equations([equation(coefficients[i], value[i]) for i in range(len(equations)-1)])
+			a0 = equations[0].value
+			for i in range(1, len(equations[0].coefficients)):
+				a0 -= variables[i-1]*equations[0].coefficients[i]
+			a0 /= equations[0].coefficients[0]
+			return [a0]+variables
 
 
 def normal_from_surface(point, surface):
@@ -76,3 +86,23 @@ def Magnitude(A):
 		mag += i*i
 	mag = math.sqrt(mag)
 	return mag
+
+def value_at(point,obj):
+	ans=-obj.value
+	for i in range(len(obj.coefficients)):
+		ans+=obj.coefficients[i]*point[i]
+	return ans;
+
+def In_Surface(point,surface):
+	cross_section_point=[]
+	if(surface.use_perspective2):
+		cross_section_point=point[1:]
+	else:
+		cross_section_point=point[:-1]
+	for i in range(len(surface.boundry_list)):
+		Point_Parity=value_at(cross_section_point,surface.boundry_list[i])
+		if(Point_Parity<0 and surface.Centre_Parity[i]>0):
+			return False
+		if(Point_Parity>0 and surface.Centre_Parity[i]<0):
+			return False
+	return True
