@@ -14,6 +14,8 @@ import surface as SU
 import physics as phy
 import random
 
+render_time_step=1/float(input("Enter Monitor Refresh Rate: "))
+
 pygame.init()
 infoObject = pygame.display.Info()
 pygame.display.set_caption("Test Environment")
@@ -27,64 +29,63 @@ Radial_Object_List = []
 Surface_List = []
 Physics_Model_List = [phy.newtonian_physics_model()]
 Gravity_List = [Physics_Model_List[i].Get_Gravity() for i in range(len(Physics_Model_List))]
-Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [100, 0], 2*22474266964325.848, 0, 15, False, [255, 0, 0]))
-Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [0, 100], 2*22474266964325.848, 0, 15, False, [0, 255, 0]))
-Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [-100, 0], 2*22474266964325.848, 0, 15, False, [0, 0, 255]))
-Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [0, -100], 2*22474266964325.848, 0, 15, False, [0, 255, 255]))
-Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [100, 0], 2*22474266964325.848, 0, 15, False, [255, 0, 255]))
-Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [0, 100], 2*22474266964325.848, 0, 15, False, [255, 255, 0]))
-Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [0, -100], 2*22474266964325.848, 0, 15, False, [255, 255, 255]))
+Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [100, 0], 20*22474266964325.848, 0, 15, False, [255, 0, 0]))
+Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [0, 100], 20*22474266964325.848, 0, 15, False, [0, 255, 0]))
+Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [-100, 0], 20*22474266964325.848, 0, 15, False, [0, 0, 255]))
+Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [0, -100], 20*22474266964325.848, 0, 15, False, [0, 255, 255]))
+Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [100, 0], 20*22474266964325.848, 0, 15, False, [255, 0, 255]))
+Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [0, 100], 20*22474266964325.848, 0, 15, False, [255, 255, 0]))
+Radial_Object_List.append(RO.Radial_Object([width/2-200+400*random.random(), height/2-200+400*random.random()], [0, -100], 20*22474266964325.848, 0, 15, False, [255, 255, 255]))
 Surface_List.append(SU.Surface([[0, 0], [width-1, 0]], 2))
 Surface_List.append(SU.Surface([[width/2-400, height/2], [width/2+400, height/2]], 2))
 Surface_List.append(SU.Surface([[width/2, height/2-200], [width/2, height/2+200]], 2))
 Surface_List.append(SU.Surface([[width-1, 0], [width-1, height-1]], 2))
 Surface_List.append(SU.Surface([[width-1, height-1], [0, height-1]], 2))
 Surface_List.append(SU.Surface([[0, 0], [0, height-1]], 2))
-prev_time=0
+physics_prev_time=0
+render_prev_time=0
 
 while running:
-	time_step=pygame.time.get_ticks()/1000-prev_time
-	prev_time=pygame.time.get_ticks()/1000
-	print(1/time_step)
+	physics_time_step=pygame.time.get_ticks()/1000-physics_prev_time
+	physics_prev_time=pygame.time.get_ticks()/1000
 	
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			running = False
-		if event.type == pygame.KEYUP:
-			if event.key == pygame.K_RETURN:
-				pass
 	
-	screen.fill((0, 0, 0))
+	if(not physics_time_step==0):
+		for i in Radial_Object_List:
+			force = [0, 0]
+			values = {
+			"0.0": i.mass,
+			"0.1": i.charge 
+			}
+			for j in range(Physics_Model_List[0].dimensions):
+				values["0.2."+str(j)] = i.position[j]
+			for j in range(Physics_Model_List[0].dimensions):
+				values["0.3."+str(j)] = i.velocity[j]
+			for j in Radial_Object_List:
+				if not j == i:
+					values["1.0"] = j.mass
+					values["1.1"] = j.charge
+					for k in range(Physics_Model_List[0].dimensions):
+						values["1.2."+str(k)] = j.position[k]
+					for k in range(Physics_Model_List[0].dimensions):
+						values["1.3."+str(k)] = j.velocity[k]
+					temp = [Gravity_List[0][i](values) for i in range(len(Gravity_List[0]))]
+					force = [force[i]+temp[i] for i in range(len(temp))]
+					
+			Physics_Model_List[0].Update_Kinematics(i, force=force, time_step=physics_time_step)
+		
+		Physics_Model_List[0].Surface_Collision(Radial_Object_List, Surface_List, time_step=physics_time_step)
+		Physics_Model_List[0].Radial_Object_Collision(Radial_Object_List, time_step=physics_time_step)
 	
-	for i in Radial_Object_List:
-		force = [0, 0]
-		values = {
-		"0.0": i.mass,
-		"0.1": i.charge 
-		}
-		for j in range(Physics_Model_List[0].dimensions):
-			values["0.2."+str(j)] = i.position[j]
-		for j in range(Physics_Model_List[0].dimensions):
-			values["0.3."+str(j)] = i.velocity[j]
-		for j in Radial_Object_List:
-			if not j == i:
-				values["1.0"] = j.mass
-				values["1.1"] = j.charge
-				for k in range(Physics_Model_List[0].dimensions):
-					values["1.2."+str(k)] = j.position[k]
-				for k in range(Physics_Model_List[0].dimensions):
-					values["1.3."+str(k)] = j.velocity[k]
-				temp = [Gravity_List[0][i](values) for i in range(len(Gravity_List[0]))]
-				force = [force[i]+temp[i] for i in range(len(temp))]
-				
-		Physics_Model_List[0].Update_Kinematics(i, force=force, time_step=time_step)
-	
-	for i in Radial_Object_List:
-		pygame.draw.circle(screen, i.color, i.position, i.radius)
-	for i in Surface_List:
-		pygame.draw.line(screen,(255,255,255),i.points[0],i.points[1],1)
-	
-	Physics_Model_List[0].Surface_Collision(Radial_Object_List, Surface_List, time_step=time_step)
-	Physics_Model_List[0].Radial_Object_Collision(Radial_Object_List, time_step=time_step)
-	
-	pygame.display.update()
+	render_time_delay=pygame.time.get_ticks()/1000-render_prev_time
+	if(render_time_delay>=render_time_step):
+		render_prev_time+=render_time_delay
+		screen.fill((0, 0, 0))
+		for i in Radial_Object_List:
+			pygame.draw.circle(screen, i.color, i.position, i.radius)
+		for i in Surface_List:
+			pygame.draw.line(screen,(255,255,255),i.points[0],i.points[1],1)
+		pygame.display.update()

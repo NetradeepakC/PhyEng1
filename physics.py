@@ -89,6 +89,10 @@ class newtonian_physics_model:
 						Base_of_Normal=[j.position[i]-Magnitude_of_Normal*Unit_Vector_Along_Normal[i] for i in range(len(Unit_Vector_Along_Normal))]
 					else:
 						Base_of_Normal=[j.position[i]+Magnitude_of_Normal*Unit_Vector_Along_Normal[i] for i in range(len(Unit_Vector_Along_Normal))]
+					if(Base_of_Normal[0]==1360):
+						print(Base_of_Normal)
+						print(i.coefficients,i.value)
+						print(i.boundry_list[0].coefficients,i.boundry_list[1].coefficients)
 					if(m2.In_Surface(j.position,i)):
 						Cos = m2.Cos(j.velocity, i.coefficients)
 						Speed_Along_Normal = m2.Magnitude(j.velocity) * Cos
